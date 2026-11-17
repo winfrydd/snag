@@ -1,0 +1,9 @@
+bin/
+obj/
+publish/
+dist/
+.vs/
+*.user
+data/
+_test/
+_shots/

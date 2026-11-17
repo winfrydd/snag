@@ -1,0 +1,256 @@
+<Window x:Class="Snag.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Snag" Icon="Assets/snag.ico"
+        Width="860" Height="940" MinWidth="600" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        AllowDrop="True" PreviewDragOver="Window_DragOver" PreviewDrop="Window_Drop"
+        Activated="Window_Activated" Closing="Window_Closing" PreviewKeyDown="Window_PreviewKeyDown">
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo x:Name="Taskbar" />
+    </Window.TaskbarItemInfo>
+
+    <Grid Margin="20,14,20,12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />  <!-- tool warning -->
+            <RowDefinition Height="Auto" />  <!-- link -->
+            <RowDefinition Height="Auto" />  <!-- preview -->
+            <RowDefinition Height="Auto" />  <!-- options -->
+            <RowDefinition Height="Auto" />  <!-- download button -->
+            <RowDefinition Height="Auto" />  <!-- downloads header -->
+            <RowDefinition Height="*" />     <!-- downloads list -->
+            <RowDefinition Height="Auto" />  <!-- footer -->
+        </Grid.RowDefinitions>
+
+        <!-- Missing tools banner -->
+        <Border x:Name="ToolBanner" Grid.Row="0" Visibility="Collapsed" Margin="0,0,0,12" CornerRadius="8" Padding="14,10"
+                Background="{DynamicResource SystemFillColorCautionBackgroundBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+            <DockPanel>
+                <Button x:Name="LocateYtDlpButton" DockPanel.Dock="Right" Content="Find yt-dlp.exe…" Click="LocateYtDlp_Click" Margin="12,0,0,0" />
+                <TextBlock x:Name="ToolBannerText" TextWrapping="Wrap" VerticalAlignment="Center" />
+            </DockPanel>
+        </Border>
+
+        <!-- Link -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="UrlBox" FontSize="15" Padding="12,9" VerticalContentAlignment="Center"
+                     AutomationProperties.AutomationId="UrlBox" AutomationProperties.Name="Link"
+                     TextChanged="UrlBox_TextChanged" PreviewKeyDown="UrlBox_PreviewKeyDown" />
+            <TextBlock x:Name="UrlPlaceholder" IsHitTestVisible="False" Margin="14,0,0,0" VerticalAlignment="Center" FontSize="15"
+                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                       Text="Paste a link (YouTube and 1000+ other sites). Several links at once works too." />
+            <Button Grid.Column="1" Margin="8,0,0,0" Padding="14,9" Click="Paste_Click" ToolTip="Paste from clipboard (Ctrl+V)">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE77F;" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBlock Text="Paste" />
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Preview -->
+        <Border x:Name="PreviewCard" Grid.Row="2" Style="{StaticResource Card}" Margin="0,12,0,0" Padding="12" Visibility="Collapsed">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Border Width="160" Height="90" CornerRadius="6" ClipToBounds="True" Margin="0,0,14,0"
+                        Background="{DynamicResource ControlFillColorSecondaryBrush}">
+                    <Grid>
+                        <TextBlock x:Name="PreviewGlyph" FontFamily="{StaticResource IconFont}" Text="&#xE8B2;" FontSize="28"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                        <Image x:Name="PreviewImage" Stretch="UniformToFill" />
+                    </Grid>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock x:Name="PreviewTitle" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap" MaxHeight="44" TextTrimming="CharacterEllipsis" />
+                    <TextBlock x:Name="PreviewMeta" Style="{StaticResource Muted}" Margin="0,4,0,0" TextWrapping="Wrap" MaxHeight="40" />
+                    <ProgressBar x:Name="PreviewSpinner" IsIndeterminate="True" Height="4" Margin="0,8,0,0" Width="180" HorizontalAlignment="Left" />
+                    <CheckBox x:Name="PlaylistCheck" Margin="0,8,0,0" Visibility="Collapsed" Content="Download the whole playlist" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Options -->
+        <Border Grid.Row="3" Style="{StaticResource Card}" Margin="0,12,0,0">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Get" Style="{StaticResource Label}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <RadioButton x:Name="VideoRadio" Style="{StaticResource Segment}" GroupName="Mode" Checked="Mode_Changed"
+                                     AutomationProperties.AutomationId="VideoRadio">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE714;" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock Text="Video" />
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton x:Name="AudioRadio" Style="{StaticResource Segment}" GroupName="Mode" Checked="Mode_Changed"
+                                     AutomationProperties.AutomationId="AudioRadio">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE8D6;" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock Text="Audio only" />
+                            </StackPanel>
+                        </RadioButton>
+                    </StackPanel>
+
+                    <TextBlock x:Name="QualityLabel" Grid.Row="1" Text="Quality" Style="{StaticResource Label}" Margin="0,12,16,0" />
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,12,0,0">
+                        <ComboBox x:Name="QualityBox" Width="200" SelectionChanged="Option_Changed" AutomationProperties.AutomationId="QualityBox" />
+                        <ComboBox x:Name="FormatBox" Width="230" Margin="10,0,0,0" SelectionChanged="Option_Changed" AutomationProperties.AutomationId="FormatBox" />
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="2" Text="Save to" Style="{StaticResource Label}" Margin="0,12,16,0" />
+                    <Grid Grid.Row="2" Grid.Column="1" Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="FolderBox" IsReadOnly="True" VerticalContentAlignment="Center" AutomationProperties.AutomationId="FolderBox" />
+                        <Button Grid.Column="1" Content="Change…" Margin="8,0,0,0" Click="BrowseFolder_Click" />
+                        <Button Grid.Column="2" Style="{StaticResource IconButton}" Margin="6,0,0,0" Content="&#xE838;"
+                                ToolTip="Open this folder" Click="OpenFolder_Click" Height="Auto" />
+                    </Grid>
+                </Grid>
+
+                <Expander x:Name="MoreExpander" Header="More options" Margin="0,14,0,0" Expanded="More_Toggled" Collapsed="More_Toggled">
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <CheckBox x:Name="ThumbCheck" Content="Add cover picture (thumbnail)" Click="Option_Changed" />
+                            <CheckBox x:Name="MetaCheck" Content="Add title, artist and date info" Click="Option_Changed" Margin="0,6,0,0" />
+                            <CheckBox x:Name="ChaptersCheck" Content="Add chapters (video)" Click="Option_Changed" Margin="0,6,0,0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <CheckBox x:Name="SubsCheck" Content="Add subtitles (video), languages:" Click="Option_Changed" VerticalAlignment="Center" />
+                                <TextBox x:Name="SubsLangBox" Width="90" Margin="8,0,0,0" LostFocus="Option_Changed"
+                                         ToolTip="Language codes, comma separated. en.* = all English. Example: en.*,de" />
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="File names" Style="{StaticResource Label}" Width="130" />
+                                <ComboBox x:Name="NameStyleBox" Width="190" SelectionChanged="Option_Changed" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBlock Text="At the same time" Style="{StaticResource Label}" Width="130" />
+                                <ComboBox x:Name="ParallelBox" Width="190" SelectionChanged="Option_Changed" />
+                            </StackPanel>
+                            <CheckBox x:Name="CookiesCheck" Margin="0,10,0,0" Click="Option_Changed"
+                                      Content="Use Firefox sign-in (age-restricted / members)"
+                                      ToolTip="Lets yt-dlp read your Firefox cookies locally, so videos that need you signed in work. They are only sent to the site you download from." />
+                            <CheckBox x:Name="ClipboardCheck" Margin="0,6,0,0" Click="Option_Changed"
+                                      Content="Grab copied links when I switch to Snag" />
+                        </StackPanel>
+                    </Grid>
+                </Expander>
+            </StackPanel>
+        </Border>
+
+        <!-- Download -->
+        <Button x:Name="DownloadButton" Grid.Row="4" Margin="0,12,0,0" Height="44" HorizontalAlignment="Stretch"
+                Style="{DynamicResource AccentButtonStyle}" Click="Download_Click" IsEnabled="False"
+                AutomationProperties.AutomationId="DownloadButton">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock FontFamily="{StaticResource IconFont}" Text="&#xE896;" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="16" />
+                <TextBlock x:Name="DownloadButtonText" Text="Download" FontSize="15" FontWeight="SemiBold" />
+            </StackPanel>
+        </Button>
+
+        <!-- Downloads header -->
+        <DockPanel Grid.Row="5" Margin="2,18,0,6" LastChildFill="False">
+            <TextBlock Text="Downloads" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <Button DockPanel.Dock="Right" Content="Clear finished" Click="ClearFinished_Click" />
+        </DockPanel>
+
+        <!-- Downloads list -->
+        <Grid Grid.Row="6">
+            <TextBlock x:Name="EmptyText" Style="{StaticResource Muted}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Text="Downloads you start show up here." />
+            <ListBox x:Name="ItemsList" Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.AutomationId="ItemsList">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0,0,0,6" />
+                        <Setter Property="Focusable" Value="False" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource Card}" Padding="10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border Width="96" Height="54" CornerRadius="4" ClipToBounds="True" Margin="0,0,12,0"
+                                        Background="{DynamicResource ControlFillColorSecondaryBrush}">
+                                    <Image Source="{Binding Thumbnail, TargetNullValue={x:Null}}" Stretch="UniformToFill" />
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock FontSize="12" Margin="0,2,0,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource Muted}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsFailed}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
+                                                        <Setter Property="TextWrapping" Value="Wrap" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                        <Run Text="{Binding Subtitle, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding StatusText, Mode=OneWay}" />
+                                    </TextBlock>
+                                    <ProgressBar Margin="0,6,0,0" Height="4" Maximum="100" Value="{Binding Progress, Mode=OneWay}"
+                                                 IsIndeterminate="{Binding IsIndeterminate, Mode=OneWay}"
+                                                 Visibility="{Binding IsActive, Converter={StaticResource BoolToVis}}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
+                                    <Button Style="{StaticResource IconButton}" Content="&#xE768;" ToolTip="Play / open"
+                                            Visibility="{Binding CanOpen, Converter={StaticResource BoolToVis}}" Click="ItemOpen_Click" />
+                                    <Button Style="{StaticResource IconButton}" Content="&#xE838;" ToolTip="Show in folder"
+                                            Visibility="{Binding CanOpen, Converter={StaticResource BoolToVis}}" Click="ItemShow_Click" />
+                                    <Button Style="{StaticResource IconButton}" Content="&#xE72C;" ToolTip="Try again"
+                                            Visibility="{Binding CanRetry, Converter={StaticResource BoolToVis}}" Click="ItemRetry_Click" />
+                                    <Button Style="{StaticResource IconButton}" Content="&#xE711;" ToolTip="Cancel"
+                                            Visibility="{Binding CanCancel, Converter={StaticResource BoolToVis}}" Click="ItemCancel_Click" />
+                                    <Button Style="{StaticResource IconButton}" Content="&#xE74D;" ToolTip="Remove from list (keeps the file)"
+                                            Visibility="{Binding CanRemove, Converter={StaticResource BoolToVis}}" Click="ItemRemove_Click" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+
+        <!-- Footer -->
+        <DockPanel Grid.Row="7" Margin="2,10,0,0">
+            <Button x:Name="UpdateButton" DockPanel.Dock="Right" Content="Update yt-dlp" Click="Update_Click"
+                    ToolTip="Downloads stop working? YouTube changes often; updating yt-dlp fixes most of it." />
+            <TextBlock x:Name="FooterText" Style="{StaticResource Muted}" VerticalAlignment="Center" FontSize="12" />
+        </DockPanel>
+    </Grid>
+</Window>

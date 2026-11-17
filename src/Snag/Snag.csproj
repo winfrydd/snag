@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Snag</AssemblyName>
+    <RootNamespace>Snag</RootNamespace>
+    <ApplicationIcon>Assets\snag.ico</ApplicationIcon>
+    <Version>1.0.0</Version>
+    <Product>Snag</Product>
+    <AssemblyTitle>Snag</AssemblyTitle>
+    <Company>Snag contributors</Company>
+    <Copyright>MIT License</Copyright>
+    <!-- Strip local folder paths from the embedded debug info -->
+    <PathMap>$(MSBuildProjectDirectory)=Snag</PathMap>
+
+    <!-- Runs on any installed .NET 10+ desktop runtime -->
+    <RollForward>LatestMajor</RollForward>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <DebugType>embedded</DebugType>
+
+    <!-- WPF0001: Fluent ThemeMode is marked experimental -->
+    <NoWarn>$(NoWarn);WPF0001;CA1416;SYSLIB1054</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\snag.ico" />
+  </ItemGroup>
+
+</Project>
